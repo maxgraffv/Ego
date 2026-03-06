@@ -1,0 +1,2 @@
+# Ego
+Modular Robotics Platform
