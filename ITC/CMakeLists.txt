@@ -1,4 +1,5 @@
 add_library(itc
+    Frame.cpp
 )
 
 target_include_directories(itc PUBLIC
