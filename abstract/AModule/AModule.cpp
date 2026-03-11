@@ -1,5 +1,4 @@
 #include "AModule.h"
-#include <iostream>
 
 
 /**************************************************
@@ -24,6 +23,7 @@ int AModule::_module_id_counter = 0;
 AModule::AModule( Bus& bus, std::string bus_name ) : _stopRequested(false), _bus(bus), _bus_name(bus_name)
 {
     this->_status = ModuleStatus::Inactive;
+    this->_id = _module_id_counter++;
 }
 
 
@@ -67,7 +67,6 @@ void AModule::deactivate()
         _thread.join();
     }
 
-    // _stopRequested.store(false, std::memory_order_relaxed);
     this->_status = ModuleStatus::Inactive;
 }
 

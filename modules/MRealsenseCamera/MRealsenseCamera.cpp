@@ -3,24 +3,25 @@
 #include <random>
 
 
+/**
+ * Constructor
+ */
 MRealsenseCamera::MRealsenseCamera(Bus& bus, std::string bus_name) : AModule(bus, bus_name), _data(0.f)
 {
 
 }
 
 
+/**
+ * Run
+ */
 void MRealsenseCamera::run()
 {
-    
     float fps = 5;
     int ms = static_cast<int>( 1000.f/fps );
 
-
-    {
-        // std::lock_guard(_data_mutex);
-        _data = generateData();
-        std::this_thread::sleep_for(std::chrono::milliseconds(ms));
-    }
+    _data = generateData();
+    std::this_thread::sleep_for(std::chrono::milliseconds(ms));
 
     Frame frame;
         frame.id = 0;
@@ -28,11 +29,15 @@ void MRealsenseCamera::run()
         frame.size = 1;
         frame.ts = 0;
 
-    this->bus().publish("camera/frame", frame);
+    this->bus().publish(busName(), frame);
 
     std::cout << "MRealsenseCamera frame... " << static_cast<int>(_data) << std::endl;
 }
 
+
+/**
+ * Generate Random Data
+ */
 double MRealsenseCamera::generateData()
 {
     std::random_device rd;
