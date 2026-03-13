@@ -3,6 +3,7 @@
 
 #include "AModule.h"
 #include "Frame.h"
+#include <librealsense2/rs.hpp>
 #include <mutex>
 
 class MRealsenseCamera : public AModule
@@ -12,8 +13,18 @@ class MRealsenseCamera : public AModule
         /**************************************************
          *	 IMAGING
          **************************************************/
+        rs2::pipeline pipeline;
+        rs2::config config;
+
+        int wd = 1280;
+        int hd = 720;
+        int wc = 1920;
+        int hc = 1080;
+
         double _data;
 
+        rs2::align align_to_color = rs2::align(RS2_STREAM_COLOR);
+        rs2::colorizer color_map;
 
         /**************************************************
          *	 HELPER FUNCTIONS
@@ -22,10 +33,11 @@ class MRealsenseCamera : public AModule
 
 
     public:
+
         /**************************************************
          *	 CONSTRUCTORS
          **************************************************/
-        MRealsenseCamera(Bus& bus, const std::string bus_name);
+        MRealsenseCamera(Bus& bus, std::string bus_name);
 
         
         /**************************************************

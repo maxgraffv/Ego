@@ -8,7 +8,10 @@
  */
 MRealsenseCamera::MRealsenseCamera(Bus& bus, std::string bus_name) : AModule(bus, bus_name), _data(0.f)
 {
+    config.enable_stream(RS2_STREAM_COLOR, wc, hc, RS2_FORMAT_BGR8, 30);
+    config.enable_stream(RS2_STREAM_DEPTH, wd, hd, RS2_FORMAT_Z16, 30);
 
+    auto profile = pipeline.start(config);
 }
 
 
@@ -17,21 +20,42 @@ MRealsenseCamera::MRealsenseCamera(Bus& bus, std::string bus_name) : AModule(bus
  */
 void MRealsenseCamera::run()
 {
-    float fps = 5;
-    int ms = static_cast<int>( 1000.f/fps );
-
     _data = generateData();
-    std::this_thread::sleep_for(std::chrono::milliseconds(ms));
+    rs2::frameset fs = pipeline.wait_for_frames();
+    fs = align_to_color.process(fs);
+
+    rs2::video_frame color = fs.get_color_frame();
+    rs2::depth_frame depth = fs.get_depth_frame();
+    rs2::video_frame depth_vis = color_map.colorize(depth);
+
+    double ts = color.get_timestamp();
+    const void* vdata = color.get_data();
+    int vdata_len = color.get_data_size();
+
+    int bitsperpix = color.get_bits_per_pixel();
+    int bytesperpix = color.get_bytes_per_pixel();
+
+    int frameW = color.get_width();
+    int frameH = color.get_height();
+
+    std::cout << "***************************" << std::endl;
+    std::cout << "H x W: " << frameH << " x " << frameW << std::endl;
+    std::cout << "Len: " << vdata_len << std::endl;
+    std::cout << "Bytes: " << bytesperpix << std::endl;
+    std::cout << "Bits: " << bitsperpix << std::endl;
+    std::cout << "***************************\n" << std::endl;
+
+    uint8_t *bytes = (uint8_t*) vdata;
 
     Frame frame;
         frame.id = 0;
-        frame.image = static_cast<int>(_data);
-        frame.size = 1;
-        frame.ts = 0;
+        frame.image = bytes;
+        frame.size = vdata_len;
+        frame.ts = ts;
 
     this->bus().publish(busName(), frame);
 
-    std::cout << "MRealsenseCamera frame... " << static_cast<int>(_data) << std::endl;
+    std::cout << "MRealsenseCamera frame... " << static_cast<int>(bytes[0]) << std::endl;
 }
 
 
