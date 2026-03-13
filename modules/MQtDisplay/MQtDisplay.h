@@ -4,9 +4,14 @@
 #include "AModule.h"
 #include "Bus.h"
 #include "Frame.h"
+#include "QtWindow.h"
+#include <QApplication>
 #include <mutex>
 #include <iostream>
 #include <optional>
+#include <sys/types.h>
+#include <sys/wait.h>
+
 
 class MQtDisplay : public AModule
 {
@@ -21,12 +26,20 @@ class MQtDisplay : public AModule
         std::mutex _frame_mtx;
 
 
+        /**************************************************
+         *	 PROCESS
+         **************************************************/
+        pid_t _child_pid{-1};
+        bool _process_open{false};
+        void _run_QApp();
+
     public:
 
         /**************************************************
          *	 CONSTRUCTORS
          **************************************************/
         MQtDisplay(Bus& bus, const std::string bus_name);
+        ~MQtDisplay();
 
 
         /**************************************************
