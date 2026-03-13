@@ -5,11 +5,15 @@
 #include <cstdint>
 #include <ctime>
 
-struct Frame {
-    int id;
-    uint8_t image;
-    int size;
-    time_t ts;
+class Frame {
+    public: 
+        int id;
+        uint8_t* image;
+        int length;
+        int width;
+        int height;
+        time_t ts;
+
 };
 
 

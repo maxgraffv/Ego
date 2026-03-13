@@ -50,7 +50,9 @@ void MRealsenseCamera::run()
     Frame frame;
         frame.id = 0;
         frame.image = bytes;
-        frame.size = vdata_len;
+        frame.length = vdata_len;
+        frame.height = frameH;
+        frame.width = frameW;
         frame.ts = ts;
 
     this->bus().publish(busName(), frame);
