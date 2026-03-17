@@ -6,6 +6,7 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 add_subdirectory(ITC)
+add_subdirectory(shared)
 add_subdirectory(abstract/AModule)
 add_subdirectory(modules/MRealsenseCamera)
 add_subdirectory(modules/MQtDisplay)

@@ -1,7 +1,7 @@
 add_library(itc
-    Frame.cpp
+    INTERFACE
 )
 
-target_include_directories(itc PUBLIC
+target_include_directories(itc INTERFACE
     ${CMAKE_CURRENT_SOURCE_DIR}
 )
