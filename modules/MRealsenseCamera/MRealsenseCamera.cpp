@@ -6,7 +6,7 @@
 /**
  * Constructor
  */
-MRealsenseCamera::MRealsenseCamera(Bus& bus, std::string bus_name) : AModule(bus, bus_name), _data(0.f)
+MRealsenseCamera::MRealsenseCamera(ITC::Bus& bus, std::string bus_name) : AModule(bus, bus_name), _data(0.f)
 {
     config.enable_stream(RS2_STREAM_COLOR, wc, hc, RS2_FORMAT_BGR8, 30);
     config.enable_stream(RS2_STREAM_DEPTH, wd, hd, RS2_FORMAT_Z16, 30);

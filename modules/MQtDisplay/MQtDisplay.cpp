@@ -4,7 +4,7 @@
 /**
  * Constructor
  */
-MQtDisplay::MQtDisplay(Bus& bus, std::string bus_name) : AModule(bus, bus_name)
+MQtDisplay::MQtDisplay(ITC::Bus& bus, std::string bus_name) : AModule(bus, bus_name)
 {
     _sub = this->bus().subscribe<Frame>(busName(),
             [this](const Frame& frame)

@@ -20,7 +20,7 @@ int AModule::_module_id_counter = 0;
 /**
  * Constructor
  */
-AModule::AModule( Bus& bus, std::string bus_name ) : _stopRequested(false), _bus(bus), _bus_name(bus_name)
+AModule::AModule( ITC::Bus& bus, std::string bus_name ) : _stopRequested(false), _bus(bus), _bus_name(bus_name)
 {
     this->_status = ModuleStatus::Inactive;
     this->_id = _module_id_counter++;
@@ -94,7 +94,7 @@ ModuleStatus AModule::status()
 /**
  * Bus
  */
-Bus& AModule::bus()
+ITC::Bus& AModule::bus()
 {
     return _bus;
 }

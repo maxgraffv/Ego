@@ -38,7 +38,7 @@ class AModule
         /**************************************************
          *	 BUS
          **************************************************/
-        Bus& _bus;
+        ITC::Bus& _bus;
         std::string _bus_name;
 
 
@@ -47,7 +47,7 @@ class AModule
         /**
          * CONSTRUCTOR
          */
-        AModule( Bus& bus, std::string bus_name );
+        AModule( ITC::Bus& bus, std::string bus_name );
         virtual ~AModule();
 
 
@@ -62,7 +62,7 @@ class AModule
          *	 GETTERS
          **************************************************/
         ModuleStatus status();
-        Bus& bus();
+        ITC::Bus& bus();
         std::string& busName();
 };
 

@@ -20,7 +20,7 @@ class MQtDisplay : public AModule
         /**************************************************
          *	 BUS
          **************************************************/
-        Bus::Subscription _sub;
+        ITC::Bus::Subscription _sub;
         Frame _last_frame;
         bool _has_new_frame = false;
         std::mutex _frame_mtx;
@@ -38,7 +38,7 @@ class MQtDisplay : public AModule
         /**************************************************
          *	 CONSTRUCTORS
          **************************************************/
-        MQtDisplay(Bus& bus, const std::string bus_name);
+        MQtDisplay(ITC::Bus& bus, const std::string bus_name);
         ~MQtDisplay();
 
 

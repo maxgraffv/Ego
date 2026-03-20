@@ -15,7 +15,7 @@ EgoCore::~EgoCore()
 
 void EgoCore::start()
 {
-    Bus bus;
+    ITC::Bus bus;
     MRealsenseCamera cam1(bus, "camera/frame");
     MQtDisplay disp(bus, "camera/frame");
 
