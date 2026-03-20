@@ -19,6 +19,7 @@ target_link_libraries(qt_display PUBLIC
 
 add_executable( qapp
     QtWindow.cpp
+    VideoWidget.cpp
 )
 
 target_link_libraries(qapp PRIVATE
