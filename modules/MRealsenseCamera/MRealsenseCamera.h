@@ -37,7 +37,7 @@ class MRealsenseCamera : public AModule
         /**************************************************
          *	 CONSTRUCTORS
          **************************************************/
-        MRealsenseCamera(Bus& bus, std::string bus_name);
+        MRealsenseCamera(ITC::Bus& bus, std::string bus_name);
 
         
         /**************************************************
