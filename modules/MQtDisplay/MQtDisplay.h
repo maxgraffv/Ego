@@ -11,6 +11,8 @@
 #include <optional>
 #include <sys/types.h>
 #include <sys/wait.h>
+#include <unistd.h>     // fork, _exit
+#include <signal.h>     // kill
 
 
 class MQtDisplay : public AModule
