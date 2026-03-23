@@ -48,8 +48,6 @@ void MQtDisplay::run()
     if(_process_open) {
         std::optional<Frame> frame_to_render;
 
-
-
         {
             std::lock_guard<std::mutex> lock(_frame_mtx);
             if (_has_new_frame)
