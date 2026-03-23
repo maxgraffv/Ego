@@ -1,15 +1,25 @@
 #include "QtWindow.h"
 
-#include <QWidget>
-#include <QVBoxLayout>
-#include <QLabel>
-#include <QTimer>
-#include <QImage>
+#include <QApplication>
+#include <QDebug>
+
+#include <cerrno>
+#include <cstdlib>
+#include <cstring>
+#include <fcntl.h>
+#include <sys/mman.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <unistd.h>
 
 QtWindow::QtWindow()
     : m_label(nullptr),
       m_videoWidget(nullptr),
-      m_timer(nullptr)
+      m_frameReadyNotifier(nullptr),
+      shm_name(std::getenv(SharedFrameIPC::kShmNameEnv)),
+      fd(-1),
+      event_fd(-1),
+      mem(nullptr)
 {
     setWindowTitle("QtWindow Process");
     resize(800, 600);
@@ -27,41 +37,104 @@ QtWindow::QtWindow()
     layout->addWidget(m_label);
     layout->addWidget(m_videoWidget, 1);
 
-    m_timer = new QTimer(this);
+    if (shm_name == nullptr)
+    {
+        qFatal("Missing shared memory name in environment");
+    }
 
-    connect(m_timer, &QTimer::timeout, this, [this]() {
-        const int width = 640;
-        const int height = 480;
+    const char* event_fd_text = std::getenv(SharedFrameIPC::kEventFdEnv);
+    if (event_fd_text == nullptr)
+    {
+        qFatal("Missing frame-ready eventfd in environment");
+    }
 
-        QImage img(width, height, QImage::Format_RGB888);
+    event_fd = std::atoi(event_fd_text);
+    if (event_fd < 0)
+    {
+        qFatal("Invalid frame-ready eventfd");
+    }
 
-        for (int y = 0; y < height; ++y)
-        {
-            uchar* line = img.scanLine(y);
+    fd = shm_open(shm_name, O_RDONLY, 0666);
+    if (fd == -1)
+    {
+        qFatal("shm_open failed: %s", std::strerror(errno));
+    }
 
-            for (int x = 0; x < width; ++x)
-            {
-                const int i = x * 3;
+    mem = mmap(nullptr,
+               SharedFrameIPC::kMappingSize,
+               PROT_READ,
+               MAP_SHARED,
+               fd,
+               0);
 
-                uchar r = static_cast<uchar>((255 * x) / (width - 1));
-                uchar g = static_cast<uchar>((255 * y) / (height - 1));
-                uchar b = static_cast<uchar>((255 * (x + y)) / (width + height - 2));
+    if (mem == MAP_FAILED)
+    {
+        mem = nullptr;
+        qFatal("mmap failed: %s", std::strerror(errno));
+    }
 
-                line[i + 0] = r;
-                line[i + 1] = g;
-                line[i + 2] = b;
-            }
-        }
+    frame.resize(SharedFrameIPC::kMaxFrameBytes);
 
-        m_videoWidget->setFrame(img);
+    m_frameReadyNotifier = new QSocketNotifier(event_fd, QSocketNotifier::Read, this);
+    connect(m_frameReadyNotifier, &QSocketNotifier::activated, this, [this]() {
+        consumeFrame();
     });
-
-    m_timer->start(33);
 }
 
+QtWindow::~QtWindow()
+{
+    if (mem != nullptr)
+    {
+        munmap(mem, SharedFrameIPC::kMappingSize);
+    }
 
-#include <QApplication>
-#include "QtWindow.h"
+    if (fd != -1)
+    {
+        ::close(fd);
+    }
+}
+
+void QtWindow::consumeFrame()
+{
+    std::uint64_t pending_frames = 0;
+    const ssize_t read_result = read(event_fd, &pending_frames, sizeof(pending_frames));
+    if (read_result != sizeof(pending_frames))
+    {
+        qWarning() << "eventfd read failed:" << std::strerror(errno);
+        return;
+    }
+
+    SharedFrameIPC::Header* meta = header();
+    if (meta->channels != 3 || meta->size == 0 || meta->size > SharedFrameIPC::kMaxFrameBytes)
+    {
+        qWarning() << "Unsupported frame metadata"
+                   << meta->width
+                   << meta->height
+                   << meta->channels
+                   << meta->size;
+        return;
+    }
+
+    frame.resize(meta->size);
+    std::memcpy(frame.data(), payload(), meta->size);
+
+    QImage img(frame.data(),
+               static_cast<int>(meta->width),
+               static_cast<int>(meta->height),
+               static_cast<int>(meta->width * meta->channels),
+               QImage::Format_BGR888);
+    m_videoWidget->setFrame(img.copy());
+}
+
+SharedFrameIPC::Header* QtWindow::header()
+{
+    return static_cast<SharedFrameIPC::Header*>(mem);
+}
+
+std::uint8_t* QtWindow::payload()
+{
+    return static_cast<std::uint8_t*>(mem) + sizeof(SharedFrameIPC::Header);
+}
 
 int main(int argc, char* argv[])
 {

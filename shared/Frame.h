@@ -4,11 +4,13 @@
 #include <stdint.h>
 #include <cstdint>
 #include <ctime>
+#include <vector>
 
 class Frame {
     public: 
         int id;
-        uint8_t* image;
+        std::vector<uint8_t> data;
+        int channels;
         int length;
         int width;
         int height;

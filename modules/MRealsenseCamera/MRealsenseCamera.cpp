@@ -49,7 +49,8 @@ void MRealsenseCamera::run()
 
     Frame frame;
         frame.id = 0;
-        frame.image = bytes;
+        frame.channels = 3;
+        frame.data = std::vector<uint8_t>( bytes, bytes+vdata_len );
         frame.length = vdata_len;
         frame.height = frameH;
         frame.width = frameW;

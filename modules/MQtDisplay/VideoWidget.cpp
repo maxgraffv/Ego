@@ -6,7 +6,7 @@
 VideoWidget::VideoWidget(QWidget* parent)
     : QWidget(parent)
 {
-    setMinimumSize(640, 480);
+    setMinimumSize(1920, 1080);
 }
 
 void VideoWidget::setFrame(const QImage& frame)

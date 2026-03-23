@@ -4,8 +4,9 @@
 #include "AModule.h"
 #include "Bus.h"
 #include "Frame.h"
-#include "QtWindow.h"
+#include "SharedFrameIPC.h"
 #include <QApplication>
+#include <cstdint>
 #include <mutex>
 #include <iostream>
 #include <optional>
@@ -14,6 +15,10 @@
 #include <unistd.h>     // fork, _exit
 #include <signal.h>     // kill
 
+#include <fcntl.h>      // shm_open, O_*
+#include <sys/eventfd.h>
+#include <sys/mman.h>   // mmap, munmap, shm_open
+#include <sys/stat.h>   // mode constants
 
 class MQtDisplay : public AModule
 {
@@ -33,7 +38,19 @@ class MQtDisplay : public AModule
          **************************************************/
         pid_t _child_pid{-1};
         bool _process_open{false};
-        void _run_QApp();
+
+        /**************************************************
+         *	 IPC
+         **************************************************/
+        const char* shm_name = SharedFrameIPC::kShmName;
+        int fd{-1};
+        int event_fd{-1};
+        void* mem{nullptr};
+        SharedFrameIPC::Header* header();
+        std::uint8_t* payload();
+        bool initIpc();
+        void cleanupIpc();
+
 
     public:
 
