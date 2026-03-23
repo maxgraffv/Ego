@@ -1,4 +1,6 @@
 #include "Core.h"
+#include "PRealsenseViewer.h"
+#include "APersonality.h"
 
 
 /**
@@ -6,8 +8,12 @@
  */
 int main(int argc, char** argv)
 {
-    EgoCore ego;
-    // ego.setPersonality(pers);
+
+    PRealsenseViewer prv;
+    EgoCore ego(prv);
+
+
+    ego.setPersonality(prv);
     ego.start();
 
     return 0;
