@@ -1,5 +1,6 @@
 #include "Core.h"
 #include "PRealsenseViewer.h"
+#include "PMicReader.h"
 #include "APersonality.h"
 
 
@@ -10,10 +11,11 @@ int main(int argc, char** argv)
 {
 
     PRealsenseViewer prv;
-    EgoCore ego(prv);
+    PMicReader pmr;
+    EgoCore ego(pmr);
 
 
-    ego.setPersonality(prv);
+    // ego.setPersonality();
     ego.start();
 
     return 0;
