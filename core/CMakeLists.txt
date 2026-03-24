@@ -8,5 +8,6 @@ target_include_directories(core PUBLIC
 
 target_link_libraries(core PUBLIC 
     apersonality
+    mic_reader
     realsense_viewer
 )

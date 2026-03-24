@@ -4,6 +4,7 @@
 #include "APersonality.h"
 #include "DefaultPersonality.h"
 #include "PRealsenseViewer.h"
+#include "PMicReader.h"
 
 class EgoCore
 {
