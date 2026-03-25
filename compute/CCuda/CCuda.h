@@ -4,11 +4,11 @@
 #include <cstdint>
 #include <vector>
 
-class MCuda
+class CCuda
 {
 public:
-    MCuda();
-    ~MCuda();
+    CCuda();
+    ~CCuda();
 
     // Input is image data in BGRBGR format
     // Returns new vector with increased contrast by 20%

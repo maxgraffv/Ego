@@ -6,7 +6,7 @@
 #include <limits.h>
 #include <string>
 
-#include "MCuda.h"
+#include "CCuda.h"
 
 
 /**

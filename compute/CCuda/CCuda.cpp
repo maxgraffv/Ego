@@ -1,4 +1,4 @@
-#include "MCuda.h"
+#include "CCuda.h"
 
 #include <cuda_runtime.h>
 #include <stdexcept>
@@ -18,15 +18,15 @@ namespace
     }
 }
 
-MCuda::MCuda()
+CCuda::CCuda()
 {
 }
 
-MCuda::~MCuda()
+CCuda::~CCuda()
 {
 }
 
-std::vector<uint8_t> MCuda::applyContrast(const std::vector<uint8_t>& image) const
+std::vector<uint8_t> CCuda::applyContrast(const std::vector<uint8_t>& image) const
 {
     if (image.empty())
     {

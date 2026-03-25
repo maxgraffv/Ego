@@ -14,7 +14,7 @@ target_include_directories(qt_display PUBLIC
 
 target_link_libraries(qt_display PUBLIC
     amodule 
-    mcuda
+    ccuda
     Qt6::Widgets
 )
 
