@@ -6,7 +6,6 @@
 #include "Bus.h"
 #include "FrameRGB.h"
 #include "FrameRGBD.h"
-#include "MQtDisplay.h"
 #include "MRealsenseCamera.h"
 
 class PRealsenseViewer : public APersonality
