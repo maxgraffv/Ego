@@ -9,6 +9,6 @@ target_include_directories(realsense_viewer PUBLIC
 target_link_libraries(realsense_viewer PUBLIC
     apersonality
     itc
-    qt_display
+    # qt_display  # disabled: Qt not available on Jetson Nano
     realsense_camera
 )

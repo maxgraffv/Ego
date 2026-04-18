@@ -10,5 +10,5 @@ target_link_libraries(mic_reader PUBLIC
     apersonality
     itc
     respeaker
-    qt_display
+    # qt_display  # disabled: Qt not available on Jetson Nano
 )
