@@ -36,10 +36,16 @@ MMotorController::~MMotorController()
 
 void MMotorController::run()
 {
-    if (_fd < 0 && !openSerial())
+    if (_fd < 0)
     {
-        std::this_thread::sleep_for(std::chrono::milliseconds(500));
-        return;
+        std::cout << "MMotorController: opening " << _device << "...\n";
+        if (!openSerial())
+        {
+            std::cerr << "MMotorController: openSerial failed, retry in 500ms\n";
+            std::this_thread::sleep_for(std::chrono::milliseconds(500));
+            return;
+        }
+        std::cout << "MMotorController: serial open OK\n";
     }
 
     MotorCommand cmd;
@@ -199,6 +205,7 @@ void MMotorController::closeSerial()
 
 bool MMotorController::sendCommand(const std::string& cmd)
 {
+    std::cout << "MMotorController: >> " << cmd;
     ssize_t written = write(_fd, cmd.c_str(), cmd.size());
     if (written < 0)
     {
