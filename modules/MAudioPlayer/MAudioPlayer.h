@@ -1,0 +1,70 @@
+#ifndef M_AUDIO_PLAYER_H
+#define M_AUDIO_PLAYER_H
+
+#include "AModule.h"
+
+#include <alsa/asoundlib.h>
+#include <sndfile.h>
+#include <mpg123.h>
+
+#include <chrono>
+#include <mutex>
+#include <queue>
+#include <string>
+#include <thread>
+
+static constexpr const char* DEFAULT_AUDIO_FILES_PATH = "/home/max/Desktop/Ego/assets/audio/";
+
+class MAudioPlayer : public AModule
+{
+    private:
+
+        /**************************************************
+         *   BUS
+         **************************************************/
+        ITC::Bus::Subscription _sub;
+
+
+        /**************************************************
+         *   QUEUE
+         **************************************************/
+        std::queue<std::string> _queue;
+        std::mutex _queue_mtx;
+
+
+        /**************************************************
+         *   ALSA
+         **************************************************/
+        std::string _device;
+
+        void playWav(const std::string& path);
+        void playMp3(const std::string& path);
+
+        static void checkAlsa(int err, const char* what);
+
+
+    public:
+
+        /**************************************************
+         *   CONSTRUCTORS
+         **************************************************/
+        MAudioPlayer(ITC::Bus& bus, std::string bus_name, std::string device = "default");
+        ~MAudioPlayer();
+
+
+        /**************************************************
+         *   THREAD
+         **************************************************/
+        void run() override;
+
+
+        /**************************************************
+         *   CONTROL
+         **************************************************/
+        void play(const std::string& path);
+        void hello();
+
+};
+
+
+#endif
