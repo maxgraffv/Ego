@@ -3,15 +3,26 @@
 #include <iostream>
 #include <unistd.h>
 #include <linux/limits.h>
-#include <filesystem>
+#include <sys/stat.h>
 
 static std::string audioAssetsPath()
 {
     char buf[PATH_MAX] = {};
     ssize_t len = readlink("/proc/self/exe", buf, sizeof(buf) - 1);
     if (len < 0) return "";
-    std::filesystem::path exe(buf);
-    return (exe.parent_path().parent_path() / "assets" / "audio" / "").string();
+    std::string exe(buf, static_cast<std::size_t>(len));
+    // strip filename, then strip one more dir (build/) to reach project root
+    auto slash1 = exe.rfind('/');
+    if (slash1 != std::string::npos) exe = exe.substr(0, slash1);
+    auto slash2 = exe.rfind('/');
+    if (slash2 != std::string::npos) exe = exe.substr(0, slash2);
+    return exe + "/assets/audio/";
+}
+
+static bool fileExists(const std::string& path)
+{
+    struct stat st{};
+    return stat(path.c_str(), &st) == 0;
 }
 
 
@@ -82,7 +93,7 @@ void MAudioPlayer::play(const std::string& path)
 void MAudioPlayer::hello()
 {
     std::string path = audioAssetsPath() + "Hej_jestem_Q_robotic.wav";
-    if (!std::filesystem::exists(path))
+    if (!fileExists(path))
     {
         std::cerr << "[MAudioPlayer] hello(): plik nie znaleziony: " << path << " — pomijam\n";
         return;
