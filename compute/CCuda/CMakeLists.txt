@@ -16,4 +16,5 @@ target_link_libraries(ccuda PUBLIC
 set_target_properties(ccuda PROPERTIES
     CUDA_SEPARABLE_COMPILATION ON
     CUDA_RESOLVE_DEVICE_SYMBOLS ON
+    CUDA_ARCHITECTURES 53
 )

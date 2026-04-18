@@ -1,7 +1,5 @@
 #include "Core.h"
-#include "PRealsenseViewer.h"
-#include "PMicReader.h"
-#include "APersonality.h"
+#include "PQBot.h"
 
 
 /**
@@ -9,13 +7,9 @@
  */
 int main(int argc, char** argv)
 {
+    PQBot pqbot;
+    EgoCore ego(pqbot);
 
-    PRealsenseViewer prv;
-    PMicReader pmr;
-    EgoCore ego(pmr);
-
-
-    // ego.setPersonality();
     ego.start();
 
     return 0;

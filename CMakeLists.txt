@@ -4,7 +4,8 @@ project(Ego VERSION 0.1 LANGUAGES CXX C CUDA)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CUDA_STANDARD 17)
+set(CMAKE_CUDA_STANDARD 14)
+set(CMAKE_CUDA_ARCHITECTURES 53)
 
 find_package(CUDAToolkit REQUIRED)
 
@@ -14,7 +15,7 @@ add_subdirectory(abstract/AModule)
 add_subdirectory(abstract/APersonality)
 add_subdirectory(compute/CCuda)
 add_subdirectory(modules/MRealsenseCamera)
-add_subdirectory(modules/MQtDisplay)
+# add_subdirectory(modules/MQtDisplay)  # disabled: Qt not available on Jetson Nano
 add_subdirectory(modules/MReSpeaker)
 add_subdirectory(modules/MAudioPlayer)
 add_subdirectory(modules/MMotorController)
