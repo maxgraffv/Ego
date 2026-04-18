@@ -1,130 +1,120 @@
 #include "MReSpeaker.h"
+#include <ctime>
+#include <iostream>
 
 
-MReSpeaker::MReSpeaker(ITC::Bus& bus, std::string bus_name) : AModule(bus, bus_name)
+/**************************************************
+ *   CONSTRUCTORS
+ **************************************************/
+
+MReSpeaker::MReSpeaker(ITC::Bus& bus, std::string bus_name, std::string device)
+    : AModule(bus, bus_name), _device(std::move(device))
 {
-
 }
 
+MReSpeaker::~MReSpeaker()
+{
+    closeAlsa();
+}
+
+
+/**************************************************
+ *   THREAD
+ **************************************************/
 
 void MReSpeaker::run()
 {
+    if (!_pcm && !openAlsa())
+    {
+        return;
+    }
 
+    std::vector<int16_t> interleaved(_num_channels * kFrameSamples);
+
+    snd_pcm_sframes_t read = snd_pcm_readi(_pcm, interleaved.data(), kFrameSamples);
+
+    if (read == -EPIPE)
+    {
+        std::cerr << "MReSpeaker: overrun, recovering\n";
+        snd_pcm_prepare(_pcm);
+        return;
+    }
+    if (read < 0)
+    {
+        std::cerr << "MReSpeaker: read error: " << snd_strerror(static_cast<int>(read)) << "\n";
+        closeAlsa();
+        return;
+    }
+
+    AudioFrame frame;
+    frame.num_channels = static_cast<int>(_num_channels);
+    frame.num_samples  = static_cast<int>(read);
+    frame.sample_rate  = static_cast<int>(_sample_rate);
+    frame.ts           = std::time(nullptr);
+    frame.channels.resize(_num_channels);
+
+    for (unsigned int ch = 0; ch < _num_channels; ++ch)
+    {
+        frame.channels[ch].resize(static_cast<std::size_t>(read));
+        for (snd_pcm_sframes_t s = 0; s < read; ++s)
+        {
+            frame.channels[ch][static_cast<std::size_t>(s)] = interleaved[static_cast<std::size_t>(s) * _num_channels + ch];
+        }
+    }
+
+    bus().publish<AudioFrame>(busName(), frame);
 }
 
 
+/**************************************************
+ *   ALSA
+ **************************************************/
 
-
-void MReSpeaker::checkAlsa(int err, const char* what) 
+bool MReSpeaker::openAlsa()
 {
-    if (err < 0) {
-        std::cerr << what << " failed: " << snd_strerror(err) << std::endl;
-        std::exit(1);
+    int err = snd_pcm_open(&_pcm, _device.c_str(), SND_PCM_STREAM_CAPTURE, 0);
+    if (err < 0)
+    {
+        std::cerr << "MReSpeaker: cannot open device " << _device << ": " << snd_strerror(err) << "\n";
+        _pcm = nullptr;
+        return false;
+    }
+
+    snd_pcm_hw_params_t* hw = nullptr;
+    snd_pcm_hw_params_alloca(&hw);
+    snd_pcm_hw_params_any(_pcm, hw);
+    snd_pcm_hw_params_set_access(_pcm, hw, SND_PCM_ACCESS_RW_INTERLEAVED);
+    snd_pcm_hw_params_set_format(_pcm, hw, SND_PCM_FORMAT_S16_LE);
+    snd_pcm_hw_params_set_channels(_pcm, hw, _num_channels);
+    snd_pcm_hw_params_set_rate_near(_pcm, hw, &_sample_rate, nullptr);
+
+    snd_pcm_uframes_t period = kFrameSamples;
+    snd_pcm_hw_params_set_period_size_near(_pcm, hw, &period, nullptr);
+
+    checkAlsa(snd_pcm_hw_params(_pcm, hw), "snd_pcm_hw_params");
+    checkAlsa(snd_pcm_prepare(_pcm),       "snd_pcm_prepare");
+
+    std::cout << "MReSpeaker: opened " << _device
+              << " @ " << _sample_rate << " Hz, "
+              << _num_channels << " ch, "
+              << kFrameSamples << " samples/frame (20ms)\n";
+    return true;
+}
+
+void MReSpeaker::closeAlsa()
+{
+    if (_pcm)
+    {
+        snd_pcm_close(_pcm);
+        _pcm = nullptr;
     }
 }
 
-
-void MReSpeaker::simple()
+void MReSpeaker::checkAlsa(int err, const char* what)
 {
-    const std::string device = "hw:2,0"; // could be hw:1,0 or default
-
-    // Typical ReSpeaker examples use 16 kHz.
-    const unsigned int sampleRate = 16000;
-
-    // If firmware exposes multiple channels
-    // set this to 6 and process each channel separately.
-    const unsigned int channels = 6;
-
-    // 16-bit signed little-endian PCM
-    const snd_pcm_format_t format = SND_PCM_FORMAT_S16_LE;
-
-    // Number of frames read per iteration
-    const snd_pcm_uframes_t framesPerBuffer = 512;
-
-    snd_pcm_t* handle = nullptr;
-    snd_pcm_hw_params_t* hwParams = nullptr;
-
-    int err = snd_pcm_open(&handle, device.c_str(), SND_PCM_STREAM_CAPTURE, 0);
-    checkAlsa(err, "snd_pcm_open");
-
-    snd_pcm_hw_params_alloca(&hwParams);
-    checkAlsa(snd_pcm_hw_params_any(handle, hwParams), "snd_pcm_hw_params_any");
-    checkAlsa(snd_pcm_hw_params_set_access(handle, hwParams, SND_PCM_ACCESS_RW_INTERLEAVED),
-              "snd_pcm_hw_params_set_access");
-    checkAlsa(snd_pcm_hw_params_set_format(handle, hwParams, format),
-              "snd_pcm_hw_params_set_format");
-    checkAlsa(snd_pcm_hw_params_set_channels(handle, hwParams, channels),
-              "snd_pcm_hw_params_set_channels");
-
-    unsigned int actualRate = sampleRate;
-    checkAlsa(snd_pcm_hw_params_set_rate_near(handle, hwParams, &actualRate, nullptr),
-              "snd_pcm_hw_params_set_rate_near");
-
-    snd_pcm_uframes_t actualFrames = framesPerBuffer;
-    checkAlsa(snd_pcm_hw_params_set_period_size_near(handle, hwParams, &actualFrames, nullptr),
-              "snd_pcm_hw_params_set_period_size_near");
-
-    checkAlsa(snd_pcm_hw_params(handle, hwParams), "snd_pcm_hw_params");
-    checkAlsa(snd_pcm_prepare(handle), "snd_pcm_prepare");
-
-    std::cout << "Capture started\n";
-    std::cout << "Device      : " << device << "\n";
-    std::cout << "Sample rate : " << actualRate << " Hz\n";
-    std::cout << "Channels    : " << channels << "\n";
-    std::cout << "Frames/buf  : " << actualFrames << "\n\n";
-
-    std::vector<int16_t> buffer(actualFrames * channels);
-
-        int framesRead = snd_pcm_readi(handle, buffer.data(), actualFrames);
-
-        if (framesRead == -EPIPE) {
-            std::cerr << "Overrun occurred\n";
-            snd_pcm_prepare(handle);
-            // continue;
-        } else if (framesRead < 0) {
-            std::cerr << "Read error: " << snd_strerror(framesRead) << "\n";
-            snd_pcm_prepare(handle);
-            // continue;
-        } else if (framesRead != static_cast<int>(actualFrames)) {
-            std::cerr << "Short read: " << framesRead << " frames\n";
-        }
-
-        // Analyze channel 0 only
-        double sumSquares = 0.0;
-        int peak = 0;
-
-        for (int i = 0; i < framesRead; ++i) {
-            int16_t sample = buffer[i * channels]; // first channel
-            int value = std::abs(static_cast<int>(sample));
-            peak = std::max(peak, value);
-            sumSquares += static_cast<double>(sample) * static_cast<double>(sample);
-        }
-
-        double rms = 0.0;
-        if (framesRead > 0) {
-            rms = std::sqrt(sumSquares / framesRead);
-        }
-
-        // Normalize to 0..1 based on int16 max
-        double rmsNorm = rms / 32768.0;
-        double peakNorm = static_cast<double>(peak) / 32768.0;
-
-        // Simple text meter
-        int barLen = static_cast<int>(rmsNorm * 50.0);
-        if (barLen > 50) barLen = 50;
-
-        std::cout << "\rRMS: " << rms
-                  << "  Peak: " << peak
-                  << "  [";
-
-        for (int i = 0; i < 50; ++i) {
-            std::cout << (i < barLen ? '#' : ' ');
-        }
-
-        std::cout << "] "
-                  << static_cast<int>(peakNorm * 100.0) << "%   "
-                  << std::flush;
-
-    snd_pcm_close(handle);
-
+    if (err < 0)
+    {
+        std::cerr << "MReSpeaker: " << what << " failed: " << snd_strerror(err) << "\n";
+        std::exit(1);
+    }
 }
