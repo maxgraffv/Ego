@@ -1,6 +1,7 @@
 #include "PQBot.h"
 
 #include <iostream>
+#include <memory>
 #include <thread>
 
 // Tune these for the physical robot
@@ -14,14 +15,20 @@ void PQBot::run()
 {
     ITC::Bus bus;
 
-    MRealsenseCamera cam(bus,    "camera/rgbd");
     MAudioPlayer     player(bus, "audio/play");
     MMotorController motors(bus, "motors/cmd");
+
+    std::unique_ptr<MRealsenseCamera> cam;
+    try {
+        cam = std::make_unique<MRealsenseCamera>(bus, "camera/rgbd");
+    } catch (const rs2::error& e) {
+        std::cerr << "[PQBot] RealSense not available: " << e.what() << std::endl;
+    }
 
     auto rgbd_sub = bus.subscribe<FrameRGBD>("camera/rgbd",
         [this](const FrameRGBD& f) { onRGBD(f); });
 
-    cam.activate();
+    if (cam) cam->activate();
     player.activate();
     motors.activate();
 
