@@ -2,7 +2,15 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
 
-find_package(Qt6 REQUIRED COMPONENTS Widgets)
+find_package(Qt6 QUIET COMPONENTS Widgets)
+if(Qt6_FOUND)
+    set(QT_LIBS Qt6::Widgets)
+    message(STATUS "Using Qt6")
+else()
+    find_package(Qt5 REQUIRED COMPONENTS Widgets)
+    set(QT_LIBS Qt5::Widgets)
+    message(STATUS "Using Qt5")
+endif()
 
 add_library(qt_display
     MQtDisplay.cpp
@@ -13,16 +21,16 @@ target_include_directories(qt_display PUBLIC
 )
 
 target_link_libraries(qt_display PUBLIC
-    amodule 
+    amodule
     ccuda
-    Qt6::Widgets
+    ${QT_LIBS}
 )
 
-add_executable( qapp
+add_executable(qapp
     QtWindow.cpp
     VideoWidget.cpp
 )
 
 target_link_libraries(qapp PRIVATE
-    Qt6::Widgets
+    ${QT_LIBS}
 )
