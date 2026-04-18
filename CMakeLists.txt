@@ -25,4 +25,4 @@ add_subdirectory(personality/PQBot)
 add_subdirectory(core)
 
 add_executable(ego main.cpp)
-target_link_libraries(ego PRIVATE core)
+target_link_libraries(ego PRIVATE core qbot)
