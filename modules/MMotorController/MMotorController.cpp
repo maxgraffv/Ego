@@ -207,9 +207,20 @@ bool MMotorController::sendCommand(const std::string& cmd)
         return false;
     }
 
-    char buf[8] = {};
-    ssize_t n = read(_fd, buf, sizeof(buf) - 1);
-    if (n > 0 && std::string(buf, static_cast<std::size_t>(n)).find("ERR") != std::string::npos)
+    // read all available bytes until timeout
+    char buf[256] = {};
+    std::string response;
+    ssize_t n;
+    while ((n = read(_fd, buf, sizeof(buf) - 1)) > 0)
+    {
+        buf[n] = '\0';
+        response += buf;
+    }
+
+    if (!response.empty())
+        std::cout << "MMotorController [" << _device << "] << " << response;
+
+    if (response.find("ERR") != std::string::npos)
     {
         std::cerr << "MMotorController: STM32 ERR for command: " << cmd;
         return false;
