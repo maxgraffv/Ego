@@ -5,7 +5,7 @@ void PRealsenseViewer::run()
 {
     ITC::Bus bus;
     MRealsenseCamera cam1(bus, "camera/rgbd");
-    MQtDisplay disp(bus, "camera/rgb");
+    // MQtDisplay disp(bus, "camera/rgb");  // disabled: Qt not available on Jetson Nano
 
     auto bridge = bus.subscribe<FrameRGBD>("camera/rgbd", [&bus](const FrameRGBD& f) {
         FrameRGB rgb;
@@ -21,11 +21,11 @@ void PRealsenseViewer::run()
     std::cout << "Activated" << std::endl;
 
     cam1.activate();
-    disp.activate();
+    // disp.activate();
 
     std::this_thread::sleep_for(std::chrono::milliseconds(60 * 1000));
     std::cout << "Done" << std::endl;
 
     cam1.deactivate();
-    disp.deactivate();
+    // disp.deactivate();
 }
