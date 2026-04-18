@@ -13,7 +13,6 @@
 #include <string>
 #include <thread>
 
-static constexpr const char* DEFAULT_AUDIO_FILES_PATH = "/home/max/Desktop/Ego/assets/audio/";
 
 class MAudioPlayer : public AModule
 {

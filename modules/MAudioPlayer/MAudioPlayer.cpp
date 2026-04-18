@@ -1,6 +1,18 @@
 #include "MAudioPlayer.h"
 
 #include <iostream>
+#include <unistd.h>
+#include <linux/limits.h>
+#include <filesystem>
+
+static std::string audioAssetsPath()
+{
+    char buf[PATH_MAX] = {};
+    ssize_t len = readlink("/proc/self/exe", buf, sizeof(buf) - 1);
+    if (len < 0) return "";
+    std::filesystem::path exe(buf);
+    return (exe.parent_path().parent_path() / "assets" / "audio" / "").string();
+}
 
 
 /**************************************************
@@ -69,7 +81,13 @@ void MAudioPlayer::play(const std::string& path)
 
 void MAudioPlayer::hello()
 {
-    play(std::string(DEFAULT_AUDIO_FILES_PATH) + "Hej_jestem_Q_robotic.wav");
+    std::string path = audioAssetsPath() + "Hej_jestem_Q_robotic.wav";
+    if (!std::filesystem::exists(path))
+    {
+        std::cerr << "[MAudioPlayer] hello(): plik nie znaleziony: " << path << " — pomijam\n";
+        return;
+    }
+    play(path);
 }
 
 
