@@ -14,8 +14,8 @@
  */
 MQtDisplay::MQtDisplay(ITC::Bus& bus, std::string bus_name) : AModule(bus, bus_name)
 {
-    _sub = this->bus().subscribe<Frame>(busName(),
-            [this](const Frame& frame)
+    _sub = this->bus().subscribe<FrameRGB>(busName(),
+            [this](const FrameRGB& frame)
             {
                 std::lock_guard<std::mutex> lock(_frame_mtx);
                 _last_frame = frame;
@@ -46,7 +46,7 @@ MQtDisplay::~MQtDisplay()
 void MQtDisplay::run()
 {
     if(_process_open) {
-        std::optional<Frame> frame_to_render;
+        std::optional<FrameRGB> frame_to_render;
 
         {
             std::lock_guard<std::mutex> lock(_frame_mtx);
@@ -132,7 +132,7 @@ void MQtDisplay::run()
 /**
  * Render
  */
-void MQtDisplay::render( const Frame& frame)
+void MQtDisplay::render( const FrameRGB& frame)
 {
     if (mem == nullptr || frame.data.empty())
     {
@@ -141,7 +141,7 @@ void MQtDisplay::render( const Frame& frame)
 
     if (frame.data.size() > SharedFrameIPC::kMaxFrameBytes)
     {
-        std::cerr << "Frame too large for shared memory buffer: " << frame.data.size() << std::endl;
+        std::cerr << "FrameRGB too large for shared memory buffer: " << frame.data.size() << std::endl;
         return;
     }
 

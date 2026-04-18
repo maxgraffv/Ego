@@ -2,7 +2,7 @@
 #define M_REALSENSE_CAMERA_H
 
 #include "AModule.h"
-#include "Frame.h"
+#include "FrameRGBD.h"
 #include <librealsense2/rs.hpp>
 #include <mutex>
 

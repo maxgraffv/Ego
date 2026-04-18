@@ -28,37 +28,25 @@ void MRealsenseCamera::run()
     rs2::depth_frame depth = fs.get_depth_frame();
     rs2::video_frame depth_vis = color_map.colorize(depth);
 
-    double ts = color.get_timestamp();
+    double ts     = color.get_timestamp();
     const void* vdata = color.get_data();
     int vdata_len = color.get_data_size();
+    int frameW    = color.get_width();
+    int frameH    = color.get_height();
 
-    int bitsperpix = color.get_bits_per_pixel();
-    int bytesperpix = color.get_bytes_per_pixel();
+    const uint8_t* rgb_bytes  = reinterpret_cast<const uint8_t*>(vdata);
+    const uint16_t* depth_bytes = reinterpret_cast<const uint16_t*>(depth.get_data());
+    int depth_len = depth.get_data_size();
 
-    int frameW = color.get_width();
-    int frameH = color.get_height();
-
-    std::cout << "***************************" << std::endl;
-    std::cout << "H x W: " << frameH << " x " << frameW << std::endl;
-    std::cout << "Len: " << vdata_len << std::endl;
-    std::cout << "Bytes: " << bytesperpix << std::endl;
-    std::cout << "Bits: " << bitsperpix << std::endl;
-    std::cout << "***************************\n" << std::endl;
-
-    uint8_t *bytes = (uint8_t*) vdata;
-
-    Frame frame;
-        frame.id = 0;
-        frame.channels = 3;
-        frame.data = std::vector<uint8_t>( bytes, bytes+vdata_len );
-        frame.length = vdata_len;
-        frame.height = frameH;
-        frame.width = frameW;
-        frame.ts = ts;
+    FrameRGBD frame;
+    frame.id     = 0;
+    frame.width  = frameW;
+    frame.height = frameH;
+    frame.ts     = static_cast<time_t>(ts);
+    frame.rgb    = std::vector<uint8_t>(rgb_bytes, rgb_bytes + vdata_len);
+    frame.depth  = std::vector<uint16_t>(depth_bytes, depth_bytes + depth_len / sizeof(uint16_t));
 
     this->bus().publish(busName(), frame);
-
-    std::cout << "MRealsenseCamera frame... " << static_cast<int>(bytes[0]) << std::endl;
 }
 
 

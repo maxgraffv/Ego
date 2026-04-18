@@ -1,7 +1,7 @@
 add_library(shared
-    Frame.cpp
+    INTERFACE
 )
 
-target_include_directories(shared PUBLIC
+target_include_directories(shared INTERFACE
     ${CMAKE_CURRENT_SOURCE_DIR}
 )

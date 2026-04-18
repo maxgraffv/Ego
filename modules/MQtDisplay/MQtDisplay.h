@@ -3,7 +3,7 @@
 
 #include "AModule.h"
 #include "Bus.h"
-#include "Frame.h"
+#include "FrameRGB.h"
 #include "SharedFrameIPC.h"
 #include <QApplication>
 #include <cstdint>
@@ -28,7 +28,7 @@ class MQtDisplay : public AModule
          *	 BUS
          **************************************************/
         ITC::Bus::Subscription _sub;
-        Frame _last_frame;
+        FrameRGB _last_frame;
         bool _has_new_frame = false;
         std::mutex _frame_mtx;
 
@@ -70,7 +70,7 @@ class MQtDisplay : public AModule
         /**************************************************
          *	 GETTERS
          **************************************************/
-        void render(const Frame& frame);
+        void render(const FrameRGB& frame);
 };
 
 

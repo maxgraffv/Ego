@@ -4,7 +4,9 @@
 #include "APersonality.h"
 #include <iostream>
 #include "Bus.h"
-#include "MQtDisplay.h"   
+#include "FrameRGB.h"
+#include "FrameRGBD.h"
+#include "MQtDisplay.h"
 #include "MRealsenseCamera.h"
 
 class PRealsenseViewer : public APersonality

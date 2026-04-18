@@ -4,8 +4,19 @@
 void PRealsenseViewer::run()
 {
     ITC::Bus bus;
-    MRealsenseCamera cam1(bus, "camera/frame");
-    MQtDisplay disp(bus, "camera/frame");
+    MRealsenseCamera cam1(bus, "camera/rgbd");
+    MQtDisplay disp(bus, "camera/rgb");
+
+    auto bridge = bus.subscribe<FrameRGBD>("camera/rgbd", [&bus](const FrameRGBD& f) {
+        FrameRGB rgb;
+        rgb.id       = f.id;
+        rgb.data     = f.rgb;
+        rgb.channels = 3;
+        rgb.width    = f.width;
+        rgb.height   = f.height;
+        rgb.ts       = f.ts;
+        bus.publish<FrameRGB>("camera/rgb", rgb);
+    });
 
     std::cout << "Activated" << std::endl;
 
