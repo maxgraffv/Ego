@@ -8,6 +8,7 @@
 #include <thread>
 
 #include <fcntl.h>
+#include <sys/ioctl.h>
 #include <termios.h>
 #include <unistd.h>
 
@@ -184,11 +185,15 @@ bool MMotorController::openSerial()
 
     tty.c_cc[VMIN]  = 0;
     tty.c_cc[VTIME] = 10;  // 1s read timeout
+    tty.c_cflag &= ~HUPCL;  // don't drop DTR on close
 
     tcsetattr(_fd, TCSANOW, &tty);
 
-    // STM32 USB CDC needs ~2s after enumeration
-    std::this_thread::sleep_for(std::chrono::milliseconds(2000));
+    // clear DTR so ST-LINK doesn't reset the STM32
+    int flags;
+    ioctl(_fd, TIOCMGET, &flags);
+    flags &= ~TIOCM_DTR;
+    ioctl(_fd, TIOCMSET, &flags);
 
     std::cout << "MMotorController: connected to " << _device << "\n";
     return true;
