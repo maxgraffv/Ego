@@ -51,15 +51,18 @@ class MMotorController : public AModule
          **************************************************/
         int _speed_l = 0;   int _dir_l = 1;
         int _speed_r = 0;   int _dir_r = 1;
+        int _reversed = 0;
 
 
     public:
 
         /**************************************************
          *   CONSTRUCTORS
+         *   reversed: bitmask — bit 0 = invert motor 1, bit 1 = invert motor 2
          **************************************************/
         MMotorController(ITC::Bus& bus, std::string bus_name,
-                         std::string device = "/dev/ttyACM0");
+                         std::string device = "/dev/ttyACM0",
+                         int reversed = 0);
         ~MMotorController();
 
 

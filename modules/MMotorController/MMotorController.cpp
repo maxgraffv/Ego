@@ -17,8 +17,8 @@
  *   CONSTRUCTORS
  **************************************************/
 
-MMotorController::MMotorController(ITC::Bus& bus, std::string bus_name, std::string device)
-    : AModule(bus, bus_name), _device(std::move(device))
+MMotorController::MMotorController(ITC::Bus& bus, std::string bus_name, std::string device, int reversed)
+    : AModule(bus, bus_name), _device(std::move(device)), _reversed(reversed)
 {
     bus.subscribe<MotorCommand>(bus_name, [this](const MotorCommand& cmd) {
         enqueue(cmd);
@@ -80,6 +80,9 @@ void MMotorController::dispatch(const MotorCommand& cmd)
 
     int speed = std::clamp(cmd.speed, 0, 1000);
     int dir   = std::clamp(cmd.dir,   0, 1);
+
+    bool invert = (cmd.motor == 1) ? (_reversed & 1) : (_reversed & 2);
+    if (invert) dir ^= 1;
 
     if (cmd.motor == 1) { _speed_l = speed; _dir_l = dir; }
     else                { _speed_r = speed; _dir_r = dir; }
