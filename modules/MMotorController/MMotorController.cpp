@@ -195,6 +195,9 @@ bool MMotorController::openSerial()
     flags &= ~TIOCM_DTR;
     ioctl(_fd, TIOCMSET, &flags);
 
+    // wait for STM32 to boot after potential DTR-triggered reset
+    std::this_thread::sleep_for(std::chrono::milliseconds(2000));
+
     std::cout << "MMotorController: connected to " << _device << "\n";
     return true;
 }
