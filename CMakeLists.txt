@@ -9,6 +9,8 @@ set(CMAKE_CUDA_ARCHITECTURES 53)
 
 find_package(CUDAToolkit REQUIRED)
 
+include_directories(${CMAKE_SOURCE_DIR})
+
 add_subdirectory(ITC)
 add_subdirectory(shared)
 add_subdirectory(abstract/AModule)
