@@ -17,6 +17,11 @@ void EgoCore::start()
 }
 
 
+void EgoCore::stop()
+{
+    _personality.stop();
+}
+
 void EgoCore::setPersonality(APersonality& personality)
 {
     this->_personality = personality;

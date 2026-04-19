@@ -27,6 +27,12 @@ MMotorController::MMotorController(ITC::Bus& bus, std::string bus_name, std::str
 
 MMotorController::~MMotorController()
 {
+    if (_fd >= 0)
+    {
+        const char* stop = "STOP\n";
+        write(_fd, stop, 5);
+        std::cout << "MMotorController: STOP wysłany przy zamknięciu\n";
+    }
     closeSerial();
 }
 

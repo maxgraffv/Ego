@@ -18,6 +18,7 @@ class EgoCore
 
         void setPersonality(APersonality &personality);
         void start();
+        void stop();
 
 
 

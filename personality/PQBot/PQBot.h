@@ -8,6 +8,7 @@
 #include "MMotorController.h"
 #include "MRealsenseCamera.h"
 
+#include <atomic>
 #include <chrono>
 #include <mutex>
 
@@ -18,14 +19,16 @@ class PQBot : public APersonality
         /**************************************************
          *   STATE
          **************************************************/
-        FrameRGBD  _last_rgbd;
-        std::mutex _rgbd_mtx;
+        FrameRGBD          _last_rgbd;
+        std::mutex         _rgbd_mtx;
+        std::atomic<bool>  _running{true};
 
         void onRGBD(const FrameRGBD& frame);
 
 
     public:
         void run() override;
+        void stop() override;
 
 };
 

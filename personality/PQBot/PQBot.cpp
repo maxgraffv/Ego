@@ -5,7 +5,7 @@
 #include <thread>
 
 // Tune these for the physical robot
-static constexpr int   kSpeed        = 200;
+static constexpr int   kSpeed        = 400;
 static constexpr int   kForwardMs    = 3000;
 static constexpr int   kTurnMs       = 1500;
 static constexpr int   kHelloEveryMs = 15000;
@@ -57,12 +57,12 @@ void PQBot::run()
     LOG("[PQBot] Wchodzę w pętlę główną (kwadrat)");
 
     int loop_count = 0;
-    while (true)
+    while (_running)
     {
         ++loop_count;
         LOG("[PQBot] Pętla #" << loop_count << " — przejazd kwadratu");
 
-        for (int side = 0; side < 4; ++side)
+        for (int side = 0; side < 4 && _running; ++side)
         {
             auto now = std::chrono::steady_clock::now();
             int elapsed = static_cast<int>(
@@ -88,6 +88,12 @@ void PQBot::run()
     }
 }
 
+
+void PQBot::stop()
+{
+    LOG("[PQBot] stop() — zatrzymuję pętlę");
+    _running = false;
+}
 
 void PQBot::onRGBD(const FrameRGBD& frame)
 {
