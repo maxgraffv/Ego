@@ -8,7 +8,4 @@ target_include_directories(audio_player PUBLIC
 
 target_link_libraries(audio_player PUBLIC
     amodule
-    asound
-    sndfile
-    mpg123
 )

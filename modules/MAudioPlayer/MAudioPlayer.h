@@ -3,10 +3,6 @@
 
 #include "AModule.h"
 
-#include <alsa/asoundlib.h>
-#include <sndfile.h>
-#include <mpg123.h>
-
 #include <chrono>
 #include <mutex>
 #include <queue>
@@ -32,14 +28,12 @@ class MAudioPlayer : public AModule
 
 
         /**************************************************
-         *   ALSA
+         *   PLAYBACK
          **************************************************/
         std::string _device;
 
         void playWav(const std::string& path);
         void playMp3(const std::string& path);
-
-        static void checkAlsa(int err, const char* what);
 
 
     public:
