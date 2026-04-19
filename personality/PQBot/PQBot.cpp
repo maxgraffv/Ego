@@ -1,66 +1,66 @@
 #include "PQBot.h"
+#include "constants.h"
 
-#include <iostream>
 #include <memory>
 #include <thread>
 
 // Tune these for the physical robot
 static constexpr int   kSpeed        = 200;
-static constexpr int   kForwardMs    = 3000;   // straight leg of the square
-static constexpr int   kTurnMs       = 1500;   // ~90° turn duration
-static constexpr int   kHelloEveryMs = 15000;  // hello() interval (10–20s)
+static constexpr int   kForwardMs    = 3000;
+static constexpr int   kTurnMs       = 1500;
+static constexpr int   kHelloEveryMs = 15000;
 
 
 void PQBot::run()
 {
-    std::cout << "[PQBot] Startuje..." << std::endl;
+    LOG("[PQBot] Startuje...");
 
     ITC::Bus bus;
-    std::cout << "[PQBot] ITC::Bus utworzony" << std::endl;
+    LOG("[PQBot] ITC::Bus utworzony");
 
-    std::cout << "[PQBot] Inicjalizacja MAudioPlayer..." << std::endl;
+    LOG("[PQBot] Inicjalizacja MAudioPlayer...");
     MAudioPlayer     player(bus, "audio/play");
 
-    std::cout << "[PQBot] Inicjalizacja MMotorController..." << std::endl;
+    LOG("[PQBot] Inicjalizacja MMotorController...");
     MMotorController motors(bus, "motors/cmd");
 
     std::unique_ptr<MRealsenseCamera> cam;
-    std::cout << "[PQBot] Próba połączenia z RealSense..." << std::endl;
+    LOG("[PQBot] Próba połączenia z RealSense...");
     try {
         cam = std::make_unique<MRealsenseCamera>(bus, "camera/rgbd");
-        std::cout << "[PQBot] RealSense: OK" << std::endl;
+        LOG("[PQBot] RealSense: OK");
     } catch (const rs2::error& e) {
-        std::cerr << "[PQBot] RealSense niedostępny: " << e.what() << " — kontynuuję bez kamery" << std::endl;
+        LOG_ERR("[PQBot] RealSense niedostępny: " << e.what() << " — kontynuuję bez kamery");
     }
 
     auto rgbd_sub = bus.subscribe<FrameRGBD>("camera/rgbd",
         [this](const FrameRGBD& f) { onRGBD(f); });
 
     if (cam) {
-        std::cout << "[PQBot] Aktywacja kamery..." << std::endl;
+        LOG("[PQBot] Aktywacja kamery...");
         cam->activate();
-        std::cout << "[PQBot] Kamera aktywna" << std::endl;
+        LOG("[PQBot] Kamera aktywna");
     }
 
-    std::cout << "[PQBot] Aktywacja AudioPlayer..." << std::endl;
+    LOG("[PQBot] Aktywacja AudioPlayer...");
     player.activate();
-    std::cout << "[PQBot] AudioPlayer aktywny" << std::endl;
+    LOG("[PQBot] AudioPlayer aktywny");
 
-    std::cout << "[PQBot] Aktywacja MotorController..." << std::endl;
+    LOG("[PQBot] Aktywacja MotorController...");
     motors.activate();
-    std::cout << "[PQBot] MotorController aktywny" << std::endl;
+    LOG("[PQBot] MotorController aktywny");
 
-    std::cout << "[PQBot] Odtwarzanie hello()..." << std::endl;
+    LOG("[PQBot] Odtwarzanie hello()...");
     player.hello();
     auto last_hello = std::chrono::steady_clock::now();
 
-    std::cout << "[PQBot] Wchodzę w pętlę główną (kwadrat)" << std::endl;
+    LOG("[PQBot] Wchodzę w pętlę główną (kwadrat)");
 
     int loop_count = 0;
     while (true)
     {
         ++loop_count;
-        std::cout << "[PQBot] Pętla #" << loop_count << " — przejazd kwadratu" << std::endl;
+        LOG("[PQBot] Pętla #" << loop_count << " — przejazd kwadratu");
 
         for (int side = 0; side < 4; ++side)
         {
@@ -70,21 +70,21 @@ void PQBot::run()
 
             if (elapsed >= kHelloEveryMs)
             {
-                std::cout << "[PQBot] hello() (co " << kHelloEveryMs << "ms)" << std::endl;
+                LOG("[PQBot] hello() (co " << kHelloEveryMs << "ms)");
                 player.hello();
                 last_hello = std::chrono::steady_clock::now();
             }
 
-            std::cout << "[PQBot]   Bok " << (side + 1) << "/4 — jedzie do przodu (" << kForwardMs << "ms)" << std::endl;
+            LOG("[PQBot]   Bok " << (side + 1) << "/4 — jedzie do przodu (" << kForwardMs << "ms)");
             motors.forward(kSpeed);
             std::this_thread::sleep_for(std::chrono::milliseconds(kForwardMs));
 
-            std::cout << "[PQBot]   Bok " << (side + 1) << "/4 — skręt w prawo (" << kTurnMs << "ms)" << std::endl;
+            LOG("[PQBot]   Bok " << (side + 1) << "/4 — skręt w prawo (" << kTurnMs << "ms)");
             motors.turnRight(kSpeed);
             std::this_thread::sleep_for(std::chrono::milliseconds(kTurnMs));
         }
 
-        std::cout << "[PQBot] Kwadrat ukończony" << std::endl;
+        LOG("[PQBot] Kwadrat ukończony");
     }
 }
 

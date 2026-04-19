@@ -24,5 +24,7 @@ add_subdirectory(personality/PMicReader)
 add_subdirectory(personality/PQBot)
 add_subdirectory(core)
 
+include_directories(${CMAKE_SOURCE_DIR})
+
 add_executable(ego main.cpp)
 target_link_libraries(ego PRIVATE core qbot)
