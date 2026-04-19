@@ -110,7 +110,7 @@ void MAudioPlayer::hello()
 
 void MAudioPlayer::playWav(const std::string& path)
 {
-    std::string cmd = "HOME=/tmp aplay -q \"" + path + "\"";
+    std::string cmd = "HOME=/tmp aplay -q -D plughw:2,0 \"" + path + "\"";
     LOG("[MAudioPlayer] playWav: " << cmd);
     int ret = system(cmd.c_str());
     if (ret != 0)
