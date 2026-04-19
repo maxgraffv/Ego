@@ -184,7 +184,7 @@ bool MMotorController::openSerial()
     tty.c_lflag  = 0;
 
     tty.c_cc[VMIN]  = 0;
-    tty.c_cc[VTIME] = 10;  // 1s read timeout
+    tty.c_cc[VTIME] = 2;   // 200ms read timeout — STM32 responds in <10ms
     tty.c_cflag &= ~HUPCL;  // don't drop DTR on close
 
     tcsetattr(_fd, TCSANOW, &tty);
