@@ -9,6 +9,8 @@ set(CMAKE_CUDA_ARCHITECTURES 53)
 
 find_package(CUDAToolkit REQUIRED)
 
+include_directories(${CMAKE_SOURCE_DIR})
+
 add_subdirectory(ITC)
 add_subdirectory(shared)
 add_subdirectory(abstract/AModule)
@@ -23,8 +25,6 @@ add_subdirectory(personality/PRealsenseViewer)
 add_subdirectory(personality/PMicReader)
 add_subdirectory(personality/PQBot)
 add_subdirectory(core)
-
-include_directories(${CMAKE_SOURCE_DIR})
 
 add_executable(ego main.cpp)
 target_link_libraries(ego PRIVATE core qbot)
