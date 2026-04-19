@@ -86,6 +86,9 @@ void PQBot::run()
 
         LOG("[PQBot] Kwadrat ukończony");
     }
+
+    LOG("[PQBot] Zatrzymuję silniki — wysyłam STOP do STM32");
+    motors.stop();
 }
 
 
