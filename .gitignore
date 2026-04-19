@@ -45,3 +45,6 @@ build
 
 # VSCode
 .vscode
+
+# Stuff
+.DS_Store
