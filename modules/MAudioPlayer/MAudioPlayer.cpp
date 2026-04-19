@@ -110,7 +110,7 @@ void MAudioPlayer::hello()
 
 void MAudioPlayer::playWav(const std::string& path)
 {
-    std::string cmd = "aplay -q \"" + path + "\"";
+    std::string cmd = "HOME=/tmp aplay -q \"" + path + "\"";
     LOG("[MAudioPlayer] playWav: " << cmd);
     int ret = system(cmd.c_str());
     if (ret != 0)
@@ -124,7 +124,7 @@ void MAudioPlayer::playWav(const std::string& path)
 
 void MAudioPlayer::playMp3(const std::string& path)
 {
-    std::string cmd = "mpg123 -q \"" + path + "\"";
+    std::string cmd = "HOME=/tmp mpg123 -q \"" + path + "\"";
     LOG("[MAudioPlayer] playMp3: " << cmd);
     int ret = system(cmd.c_str());
     if (ret != 0)
