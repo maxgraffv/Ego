@@ -6,61 +6,61 @@
 
 // Tune these for the physical robot
 static constexpr int   kSpeed        = 400;
-static constexpr int   kForwardMs    = 3000;
-static constexpr int   kTurnMs       = 1500;
+static constexpr int   kForwardMs    = 500;
+static constexpr int   kTurnMs       = 200;
 static constexpr int   kHelloEveryMs = 15000;
 
 
 void PQBot::run()
 {
-    LOG("[PQBot] Startuje...");
+    LOG("[PQBot] Starting...");
 
     ITC::Bus bus;
-    LOG("[PQBot] ITC::Bus utworzony");
+    LOG("[PQBot] ITC::Bus created");
 
-    LOG("[PQBot] Inicjalizacja MAudioPlayer...");
+    LOG("[PQBot] Initializing MAudioPlayer...");
     MAudioPlayer     player(bus, "audio/play");
 
-    LOG("[PQBot] Inicjalizacja MMotorController...");
+    LOG("[PQBot] Initializing MMotorController...");
     MMotorController motors(bus, "motors/cmd");
 
     std::unique_ptr<MRealsenseCamera> cam;
-    LOG("[PQBot] Próba połączenia z RealSense...");
+    LOG("[PQBot] Attempting RealSense connection...");
     try {
         cam = std::make_unique<MRealsenseCamera>(bus, "camera/rgbd");
         LOG("[PQBot] RealSense: OK");
     } catch (const rs2::error& e) {
-        LOG_ERR("[PQBot] RealSense niedostępny: " << e.what() << " — kontynuuję bez kamery");
+        LOG_ERR("[PQBot] RealSense unavailable: " << e.what() << " — continuing without camera");
     }
 
     auto rgbd_sub = bus.subscribe<FrameRGBD>("camera/rgbd",
         [this](const FrameRGBD& f) { onRGBD(f); });
 
     if (cam) {
-        LOG("[PQBot] Aktywacja kamery...");
+        LOG("[PQBot] Activating camera...");
         cam->activate();
-        LOG("[PQBot] Kamera aktywna");
+        LOG("[PQBot] Camera active");
     }
 
-    LOG("[PQBot] Aktywacja AudioPlayer...");
+    LOG("[PQBot] Activating AudioPlayer...");
     player.activate();
-    LOG("[PQBot] AudioPlayer aktywny");
+    LOG("[PQBot] AudioPlayer active");
 
-    LOG("[PQBot] Aktywacja MotorController...");
+    LOG("[PQBot] Activating MotorController...");
     motors.activate();
-    LOG("[PQBot] MotorController aktywny");
+    LOG("[PQBot] MotorController active");
 
-    LOG("[PQBot] Odtwarzanie hello()...");
+    LOG("[PQBot] Playing hello()...");
     player.hello();
     auto last_hello = std::chrono::steady_clock::now();
 
-    LOG("[PQBot] Wchodzę w pętlę główną (kwadrat)");
+    LOG("[PQBot] Entering main loop (square path)");
 
     int loop_count = 0;
     while (_running)
     {
         ++loop_count;
-        LOG("[PQBot] Pętla #" << loop_count << " — przejazd kwadratu");
+        LOG("[PQBot] Loop #" << loop_count << " — square run");
 
         for (int side = 0; side < 4 && _running; ++side)
         {
@@ -70,31 +70,31 @@ void PQBot::run()
 
             if (elapsed >= kHelloEveryMs)
             {
-                LOG("[PQBot] hello() (co " << kHelloEveryMs << "ms)");
+                LOG("[PQBot] hello() (every " << kHelloEveryMs << "ms)");
                 player.hello();
                 last_hello = std::chrono::steady_clock::now();
             }
 
-            LOG("[PQBot]   Bok " << (side + 1) << "/4 — jedzie do przodu (" << kForwardMs << "ms)");
+            LOG("[PQBot]   Side " << (side + 1) << "/4 — moving forward (" << kForwardMs << "ms)");
             motors.forward(kSpeed);
             std::this_thread::sleep_for(std::chrono::milliseconds(kForwardMs));
 
-            LOG("[PQBot]   Bok " << (side + 1) << "/4 — skręt w prawo (" << kTurnMs << "ms)");
+            LOG("[PQBot]   Side " << (side + 1) << "/4 — turning right (" << kTurnMs << "ms)");
             motors.turnRight(kSpeed);
             std::this_thread::sleep_for(std::chrono::milliseconds(kTurnMs));
         }
 
-        LOG("[PQBot] Kwadrat ukończony");
+        LOG("[PQBot] Square completed");
     }
 
-    LOG("[PQBot] Zatrzymuję silniki — wysyłam STOP do STM32");
+    LOG("[PQBot] Stopping motors — sending STOP to STM32");
     motors.stop();
 }
 
 
 void PQBot::stop()
 {
-    LOG("[PQBot] stop() — zatrzymuję pętlę");
+    LOG("[PQBot] stop() — stopping loop");
     _running = false;
 }
 

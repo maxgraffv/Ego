@@ -9,7 +9,7 @@ static EgoCore* g_ego = nullptr;
 
 static void onSignal(int sig)
 {
-    std::cout << "\n[main] Sygnał " << sig << " — zatrzymuję...\n";
+    std::cout << "\n[main] Signal " << sig << " — killing...\n";
     if (g_ego) g_ego->stop();
     std::exit(0);
 }

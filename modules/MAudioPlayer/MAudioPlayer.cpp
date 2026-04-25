@@ -97,7 +97,7 @@ void MAudioPlayer::hello()
     LOG("[MAudioPlayer] hello(): " << path);
     if (!fileExists(path))
     {
-        LOG_ERR("[MAudioPlayer] hello(): plik nie znaleziony: " << path << " — pomijam");
+        LOG_ERR("[MAudioPlayer] hello(): file not found: " << path << " — skipping");
         return;
     }
     play(path);
@@ -114,7 +114,7 @@ void MAudioPlayer::playWav(const std::string& path)
     LOG("[MAudioPlayer] playWav: " << cmd);
     int ret = system(cmd.c_str());
     if (ret != 0)
-        std::cerr << "MAudioPlayer: aplay zwrócił kod " << ret << " dla: " << path << "\n";
+        std::cerr << "MAudioPlayer: aplay returned code " << ret << " for: " << path << "\n";
 }
 
 
@@ -128,5 +128,5 @@ void MAudioPlayer::playMp3(const std::string& path)
     LOG("[MAudioPlayer] playMp3: " << cmd);
     int ret = system(cmd.c_str());
     if (ret != 0)
-        std::cerr << "MAudioPlayer: mpg123 zwrócił kod " << ret << " dla: " << path << "\n";
+        std::cerr << "MAudioPlayer: mpg123 returned code " << ret << " for: " << path << "\n";
 }

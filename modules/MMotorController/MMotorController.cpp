@@ -31,7 +31,7 @@ MMotorController::~MMotorController()
     {
         const char* stop = "STOP\n";
         write(_fd, stop, 5);
-        std::cout << "MMotorController: STOP wysłany przy zamknięciu\n";
+        std::cout << "MMotorController: STOP sent on shutdown\n";
     }
     closeSerial();
 }
