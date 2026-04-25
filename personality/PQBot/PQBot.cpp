@@ -66,18 +66,19 @@ void PQBot::run()
         }
 
         float dist = cam ? cam->minDistance() : std::numeric_limits<float>::max();
+        LOG("[PQBot] min distance: " << dist << "m");
 
-        if (dist <= kObstacleM)
-        {
-            LOG("[PQBot] Obstacle at " << dist << "m — turning right");
-            motors.turnRight(kSpeed);
-            std::this_thread::sleep_for(std::chrono::milliseconds(kTurnMs));
-        }
-        else
-        {
-            motors.forward(kSpeed);
-            std::this_thread::sleep_for(std::chrono::milliseconds(kPollMs));
-        }
+        // if (dist <= kObstacleM)
+        // {
+        //     motors.turnRight(kSpeed);
+        //     std::this_thread::sleep_for(std::chrono::milliseconds(kTurnMs));
+        // }
+        // else
+        // {
+        //     motors.forward(kSpeed);
+        // }
+
+        std::this_thread::sleep_for(std::chrono::milliseconds(kPollMs));
     }
 
     LOG("[PQBot] Stopping motors — sending STOP to STM32");
