@@ -1,5 +1,6 @@
 #include "MRealsenseCamera.h"
 #include <iostream>
+#include <limits>
 #include <random>
 
 
@@ -46,7 +47,29 @@ void MRealsenseCamera::run()
     frame.rgb    = std::vector<uint8_t>(rgb_bytes, rgb_bytes + vdata_len);
     frame.depth  = std::vector<uint16_t>(depth_bytes, depth_bytes + depth_len / sizeof(uint16_t));
 
+    {
+        std::lock_guard<std::mutex> lock(_depth_mtx);
+        _last_depth = frame.depth;
+    }
+
     this->bus().publish(busName(), frame);
+}
+
+
+/**
+ * Min Distance
+ */
+float MRealsenseCamera::minDistance()
+{
+    std::lock_guard<std::mutex> lock(_depth_mtx);
+    uint16_t min_val = std::numeric_limits<uint16_t>::max();
+    for (uint16_t v : _last_depth) {
+        if (v > 0 && v < min_val)
+            min_val = v;
+    }
+    if (min_val == std::numeric_limits<uint16_t>::max())
+        return std::numeric_limits<float>::max();
+    return min_val * 0.001f;  // Z16: 1 unit = 1 mm
 }
 
 
