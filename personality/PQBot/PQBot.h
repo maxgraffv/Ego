@@ -20,6 +20,8 @@ class PQBot : public APersonality
          **************************************************/
         std::atomic<bool>  _running{true};
 
+        void turnRight(MMotorController& motors);
+
 
     public:
         void run() override;

@@ -9,7 +9,7 @@ static constexpr int   kSpeed        = 400;
 static constexpr int   kTurnMs       = 300;   // ms per right-turn burst
 static constexpr int   kPollMs       = 50;    // ms between distance checks while driving
 static constexpr int   kHelloEveryMs = 15000;
-static constexpr float kObstacleM    = 0.35f; // stop and turn when closer than this
+static constexpr float kObstacleM    = 0.25f; // stop and turn when closer than this
 
 
 void PQBot::run()
@@ -68,21 +68,24 @@ void PQBot::run()
         float dist = cam ? cam->minDistance() : std::numeric_limits<float>::max();
         LOG("[PQBot] min distance: " << dist << "m");
 
-        // if (dist <= kObstacleM)
-        // {
-        //     motors.turnRight(kSpeed);
-        //     std::this_thread::sleep_for(std::chrono::milliseconds(kTurnMs));
-        // }
-        // else
-        // {
-        //     motors.forward(kSpeed);
-        // }
+        if (dist <= kObstacleM)
+            turnRight(motors);
+        else
+            motors.forward(kSpeed);
 
         std::this_thread::sleep_for(std::chrono::milliseconds(kPollMs));
     }
 
     LOG("[PQBot] Stopping motors — sending STOP to STM32");
     motors.stop();
+}
+
+
+void PQBot::turnRight(MMotorController& motors)
+{
+    LOG("[PQBot] Obstacle detected — turning right");
+    motors.turnRight(kSpeed);
+    std::this_thread::sleep_for(std::chrono::milliseconds(kTurnMs));
 }
 
 
