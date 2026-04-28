@@ -34,6 +34,7 @@ class MRealsenseCamera : public AModule
          **************************************************/
         std::mutex              _depth_mtx;
         std::vector<uint16_t>   _last_depth;
+        int                     _last_depth_width = 0;
 
         /**************************************************
          *	 HELPER FUNCTIONS

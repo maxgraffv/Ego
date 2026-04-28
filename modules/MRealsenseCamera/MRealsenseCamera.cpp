@@ -50,6 +50,7 @@ void MRealsenseCamera::run()
     {
         std::lock_guard<std::mutex> lock(_depth_mtx);
         _last_depth = frame.depth;
+        _last_depth_width = frameW;
     }
 
     this->bus().publish(busName(), frame);
@@ -65,11 +66,29 @@ float MRealsenseCamera::minDistance()
     uint16_t min_val = std::numeric_limits<uint16_t>::max();
 
     //int midpoint = (hd * wd)/2;
-    if (_last_depth.empty())
+    if (_last_depth.empty() || _last_depth_width == 0)
         return std::numeric_limits<float>::max();
 
-    size_t midpoint = _last_depth.size() / 2;
-    return _last_depth[midpoint] * 0.001f;  // Z16: 1 unit = 1 mm → metres
+    // Scan the central third of each row to avoid irrelevant edge objects.
+    // Z16 value 0 means invalid (no measurement) — skip it.
+    int W = _last_depth_width;
+    int H = static_cast<int>(_last_depth.size()) / W;
+    int x_lo = W / 3;
+    int x_hi = 2 * W / 3;
+
+    uint16_t min_val = 0;
+    for (int y = 0; y < H; ++y) {
+        for (int x = x_lo; x < x_hi; ++x) {
+            uint16_t v = _last_depth[y * W + x];
+            if (v > 0 && (min_val == 0 || v < min_val))
+                min_val = v;
+        }
+    }
+
+    if (min_val == 0)
+        return std::numeric_limits<float>::max();
+
+    return min_val * 0.001f;  // Z16: 1 unit = 1 mm → metres
 }
 
 
