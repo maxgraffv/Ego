@@ -69,7 +69,7 @@ void PQBot::run()
         LOG("[PQBot] min distance: " << dist << "m");
 
         if (dist <= kObstacleM) {
-            motors.stop();
+            motors.setR(0);
             //turnRight(motors);
             std::this_thread::sleep_for(std::chrono::milliseconds(1000));
         } else {

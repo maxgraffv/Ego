@@ -48,3 +48,7 @@ build
 
 # Stuff
 .DS_Store
+
+
+# SwapFiles
+*.swp
