@@ -63,9 +63,7 @@ void MRealsenseCamera::run()
 float MRealsenseCamera::minDistance()
 {
     std::lock_guard<std::mutex> lock(_depth_mtx);
-    uint16_t min_val = std::numeric_limits<uint16_t>::max();
 
-    //int midpoint = (hd * wd)/2;
     if (_last_depth.empty() || _last_depth_width == 0)
         return std::numeric_limits<float>::max();
 
