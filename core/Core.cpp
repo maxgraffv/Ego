@@ -19,6 +19,7 @@ void EgoCore::start()
 
 void EgoCore::stop()
 {
+    std::cout << "Ego stopping Personality" << std::endl;
     _personality.stop();
 }
 

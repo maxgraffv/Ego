@@ -7,7 +7,7 @@
 
 static constexpr int   kSpeed        = 400;
 static constexpr int   kTurnMs       = 300;   // ms per right-turn burst
-static constexpr int   kPollMs       = 50;    // ms between distance checks while driving
+static constexpr int   kPollMs       = 5;    // ms between distance checks while driving
 static constexpr int   kHelloEveryMs = 15000;
 static constexpr float kObstacleM    = 0.25f; // stop and turn when closer than this
 
