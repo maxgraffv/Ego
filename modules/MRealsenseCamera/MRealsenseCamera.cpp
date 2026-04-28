@@ -65,20 +65,11 @@ float MRealsenseCamera::minDistance()
     uint16_t min_val = std::numeric_limits<uint16_t>::max();
 
     //int midpoint = (hd * wd)/2;
-    size_t midpoint = _last_depth.size()/2;
-    std::cout << "DEPTH SIZE: " << _last_depth.size() << std::endl;
-    
+    if (_last_depth.empty())
+        return std::numeric_limits<float>::max();
 
-    /*
-    for (uint16_t v : _last_depth) {
-        if (v > 0 && v < min_val)
-            min_val = v;
-    }
-    */
-    //if (min_val == std::numeric_limits<uint16_t>::max())
-    //  return std::numeric_limits<float>::max();
-    //return min_val * 0.001f;  // Z16: 1 unit = 1 mm
-    return _last_depth[midpoint];
+    size_t midpoint = _last_depth.size() / 2;
+    return _last_depth[midpoint] * 0.001f;  // Z16: 1 unit = 1 mm → metres
 }
 
 
