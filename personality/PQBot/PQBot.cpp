@@ -70,10 +70,9 @@ void PQBot::run()
 
         if (dist <= kObstacleM) {
             motors.stop();
-            turnRight(motors);
-            motors.stop();
+            //turnRight(motors);
         } else {
-            motors.forward(kSpeed);
+            //motors.forward(kSpeed);
         }
 
         std::this_thread::sleep_for(std::chrono::milliseconds(kPollMs));
