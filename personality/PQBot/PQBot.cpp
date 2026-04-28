@@ -68,12 +68,13 @@ void PQBot::run()
         float dist = cam ? cam->minDistance() : std::numeric_limits<float>::max();
         LOG("[PQBot] min distance: " << dist << "m");
 
-        if (dist <= kObstacleM)
+        if (dist <= kObstacleM) {
             motors.stop();
             turnRight(motors);
             motors.stop();
-        else
+        } else {
             motors.forward(kSpeed);
+        }
 
         std::this_thread::sleep_for(std::chrono::milliseconds(kPollMs));
     }
