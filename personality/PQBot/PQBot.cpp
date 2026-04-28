@@ -69,7 +69,9 @@ void PQBot::run()
         LOG("[PQBot] min distance: " << dist << "m");
 
         if (dist <= kObstacleM)
+            motors.stop();
             turnRight(motors);
+            motors.stop();
         else
             motors.forward(kSpeed);
 
