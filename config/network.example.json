@@ -1,0 +1,5 @@
+{
+  "laptop_ip": "192.168.X.X",
+  "laptop_port": 5005,
+  "depth_every_n": 3
+}

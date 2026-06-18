@@ -1,0 +1,18 @@
+# ROS2 colcon build artifacts
+build/
+install/
+log/
+
+# Network config — zawiera prywatne adresy IP
+# Skopiuj config/network.example.json → config/network.json i uzupełnij IP
+config/network.json
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+
+# Edytory
+.vscode/
+*.swp
+*.swo
