@@ -26,17 +26,17 @@ class CommsNode(Node):
     def __init__(self):
         super().__init__('comms_node')
 
-        self.declare_parameter('host', '127.0.0.1')
+        self.declare_parameter('hosts', ['127.0.0.1'])
         self.declare_parameter('port', 5005)
         self.declare_parameter('depth_every_n', 3)
 
-        host                = self.get_parameter('host').value
+        hosts               = self.get_parameter('hosts').value
         port                = self.get_parameter('port').value
         self._depth_every_n = self.get_parameter('depth_every_n').value
 
         self._sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self._sock.setsockopt(socket.SOL_SOCKET, socket.SO_SNDBUF, 4 * 1024 * 1024)
-        self._addr = (host, port)
+        self._addrs = [(h, port) for h in hosts]
 
         self._fid       = [0, 0, 0]
         self._send_lock = threading.Lock()
@@ -63,7 +63,8 @@ class CommsNode(Node):
         self.create_subscription(Image,           '/camera/depth',            self._on_depth, img_qos)
         self.create_subscription(Int16MultiArray, '/audio',                   self._on_audio, 10)
 
-        self.get_logger().info(f'CommsNode streaming → {host}:{port}')
+        targets = ', '.join(f'{h}:{port}' for h in hosts)
+        self.get_logger().info(f'CommsNode streaming → {targets}')
 
     def destroy_node(self):
         self._running = False
@@ -85,7 +86,8 @@ class CommsNode(Node):
         for idx in range(total):
             chunk  = mv[idx * MAX_PAYLOAD : (idx + 1) * MAX_PAYLOAD]
             header = struct.pack(HEADER_FMT, MAGIC, stream_id, fid, idx, total, len(chunk))
-            self._sock.sendmsg([header, chunk], [], 0, self._addr)
+            for addr in self._addrs:
+                self._sock.sendmsg([header, chunk], [], 0, addr)
 
     # --- ROS callbacks: just swap the slot and signal — never block the executor ---
 
