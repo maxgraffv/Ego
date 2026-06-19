@@ -24,7 +24,7 @@ def _load_network_config() -> dict:
     raise FileNotFoundError(
         "Brak pliku konfiguracji sieci.\n"
         "  Skopiuj:  config/network.example.json  →  config/network.json\n"
-        "  Uzupełnij pole 'laptop_ip' adresem IP swojego laptopa.\n"
+        "  Uzupełnij pole 'laptop_ips' listą adresów IP odbiorców.\n"
         "  Lub ustaw: export EGO_NETWORK_CONFIG=/sciezka/do/network.json"
     )
 
@@ -63,7 +63,7 @@ def generate_launch_description():
             node_name='comms',
             output='screen',
             parameters=[{
-                'host':          net['laptop_ip'],
+                'hosts':         net['laptop_ips'],
                 'port':          net.get('laptop_port', 5005),
                 'depth_every_n': net.get('depth_every_n', 3),
             }],
