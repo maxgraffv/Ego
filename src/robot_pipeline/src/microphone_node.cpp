@@ -12,6 +12,12 @@ static constexpr unsigned int kFramesPerBuf = 512;  // ~32 ms
 
 class MicrophoneNode : public rclcpp::Node
 {
+private:
+    snd_pcm_t *  pcm_{nullptr};
+    std::atomic<bool> running_;
+    std::thread  capture_thread_;
+    rclcpp::Publisher<std_msgs::msg::Int16MultiArray>::SharedPtr audio_pub_;
+
 public:
     MicrophoneNode() : Node("microphone_node"), running_(false)
     {
@@ -102,11 +108,6 @@ private:
             audio_pub_->publish(msg);
         }
     }
-
-    snd_pcm_t *  pcm_{nullptr};
-    std::atomic<bool> running_;
-    std::thread  capture_thread_;
-    rclcpp::Publisher<std_msgs::msg::Int16MultiArray>::SharedPtr audio_pub_;
 };
 
 int main(int argc, char * argv[])

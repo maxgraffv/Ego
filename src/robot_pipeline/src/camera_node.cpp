@@ -11,6 +11,16 @@
 
 class CameraNode : public rclcpp::Node
 {
+private:
+    rs2::pipeline pipe_;
+    rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr           color_pub_;
+    rclcpp::Publisher<sensor_msgs::msg::CompressedImage>::SharedPtr color_jpeg_pub_;
+    rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr           depth_pub_;
+    std::thread capture_thread_;
+    std::atomic<bool> running_;
+    std::vector<uchar> jpeg_buf_;
+    int jpeg_quality_;
+
 public:
     CameraNode() : Node("camera_node"), running_(true)
     {
@@ -99,15 +109,6 @@ private:
             depth_pub_->publish(*depth_msg);
         }
     }
-
-    rs2::pipeline pipe_;
-    rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr           color_pub_;
-    rclcpp::Publisher<sensor_msgs::msg::CompressedImage>::SharedPtr color_jpeg_pub_;
-    rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr           depth_pub_;
-    std::thread capture_thread_;
-    std::atomic<bool> running_;
-    std::vector<uchar> jpeg_buf_;
-    int jpeg_quality_;
 };
 
 int main(int argc, char * argv[])
